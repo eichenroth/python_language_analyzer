@@ -1,7 +1,7 @@
 import ast
 
 from python_language_analyzer.detection import IfDetection
-from python_language_analyzer.detector import Detector
+from python_language_analyzer.detector import Detector, get_last_line
 
 
 class ControlFlowDetector(Detector):
@@ -25,6 +25,7 @@ class ControlFlowVisitor(ast.NodeVisitor):
         if node not in self.visited:
             detection = IfDetection()
             detection.begin = node.lineno
+            detection.end = get_last_line(node)
             detection['elseif_number'] = 0
             self._recursive_if_visit(node, detection)
             self.detections.append(detection)

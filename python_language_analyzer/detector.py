@@ -1,3 +1,4 @@
+import ast
 from abc import ABC, abstractmethod
 
 
@@ -11,3 +12,8 @@ class Detector(ABC):
     @abstractmethod
     def __call__(self):
         ...
+
+
+def get_last_line(node):
+    lines = [n.lineno for n in ast.walk(node) if isinstance(n, ast.AST) and hasattr(n, 'lineno')]
+    return max(lines)

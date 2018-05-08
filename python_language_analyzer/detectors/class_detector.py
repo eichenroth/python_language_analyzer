@@ -1,7 +1,7 @@
 import ast
 
-from python_language_analyzer.detection import Detection, ClassDetection, FunctionDetection
-from python_language_analyzer.detector import Detector
+from python_language_analyzer.detection import ClassDetection
+from python_language_analyzer.detector import Detector, get_last_line
 
 
 class ClassDetector(Detector):
@@ -26,6 +26,7 @@ class ClassVisitor(ast.NodeVisitor):
     def visit_ClassDef(self, node):
         detection = ClassDetection()
         detection.begin = node.lineno
+        detection.end = get_last_line(node)
         detection['name'] = node.name
         detection['method_number'] = len([child for child in node.body if child.__class__.__name__ == 'FunctionDef'])
         detection['nested'] = self._stack_height > 0
