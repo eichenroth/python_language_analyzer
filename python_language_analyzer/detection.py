@@ -5,10 +5,6 @@ class Detection:
         self.begin = None
         self.end = None
         self.info = {}
-        self.children = []
-
-    def add_child(self, detected_child):
-        self.children.append(detected_child)
 
     def __setitem__(self, key, value):
         self.info[key] = value

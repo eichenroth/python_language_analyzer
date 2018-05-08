@@ -11,4 +11,8 @@ class BaseClass3:
 
 
 class SubclassName(BaseClass1, BaseClass2, BaseClass3):
-    pass
+    class NestedClass1:
+        pass
+
+    class NestedClass2:
+        pass

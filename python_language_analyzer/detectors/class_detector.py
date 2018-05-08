@@ -10,47 +10,28 @@ class ClassDetector(Detector):
         class_visitor = ClassVisitor()
         class_visitor.visit(file_module)
 
-        return [detection for detection in class_visitor.detections if detection.DETECTION_NAME == 'class']
+        return class_visitor.detections
 
 
 class ClassVisitor(ast.NodeVisitor):
     def __init__(self):
-        self._object_stack = []
+        self._stack_height = 0
         self.detections = []
 
-    def generic_visit(self, node, detection=None):
-        if detection is None:
-            detection = Detection()
-
-        if hasattr(node, 'lineno'):
-            detection.begin = node.lineno
-
-        self._object_stack.append(detection)
-
+    def generic_visit(self, node):
+        self._stack_height += 1
         super().generic_visit(node)
-
-        self._object_stack.pop()
-
-        if len(self._object_stack) > 0:
-            self._object_stack[-1].add_child(detection)
-        else:
-            self.detections.append(detection)
+        self._stack_height -= 1
 
     def visit_ClassDef(self, node):
         detection = ClassDetection()
-        self.generic_visit(node, detection)
-
+        detection.begin = node.lineno
         detection['name'] = node.name
+        detection['method_number'] = len([child for child in node.body if child.__class__.__name__ == 'FunctionDef'])
+        detection['nested'] = self._stack_height > 0
+        self.detections.append(detection)
 
-        method_number = 0
-        for child_detection in detection.children:
-            if child_detection.DETECTION_NAME == 'function':
-                method_number += 1
-        detection['method_number'] = method_number
-
-    def visit_FunctionDef(self, node):
-        detection = FunctionDetection()
-        self.generic_visit(node, detection)
+        self.generic_visit(node)
 
     def visit_Module(self, node):
         super().generic_visit(node)
