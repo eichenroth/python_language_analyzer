@@ -1,7 +1,7 @@
 import ast
 
 from python_language_analyzer.detection import BuiltInFunctionDetection
-from python_language_analyzer.detector import Detector
+from python_language_analyzer.detector import Detector, get_last_line
 
 
 class BuiltInFunctionDetector(Detector):
@@ -29,7 +29,8 @@ class BuiltInFunctionVisitor(ast.NodeVisitor):
         if hasattr(node.func, 'id') and node.func.id in self.BUILT_IN_FUNCTIONS:
             detection = BuiltInFunctionDetection()
             detection['name'] = node.func.id
-            detection.begin = detection.end = node.lineno
+            detection.begin = node.lineno
+            detection.end = get_last_line(node)
             self.detections.append(detection)
 
         self.generic_visit(node)
